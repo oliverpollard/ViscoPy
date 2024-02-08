@@ -12,8 +12,8 @@ LM_UM_BOUNDARY = 5700000
 LITH_VISC = 1e43
 EARTH_RADIUS = 6371000
 
-MAXWELL_SOURCE = Path(__file__).parent / "../maxwell/maxwell_col_512.f"
-MAXWELL_MODEL = Path(__file__).parent / "../maxwell/maxwell_col_512.x"
+MAXWELL_SOURCE = Path(__file__).parent / "../maxwell/maxwell_coll_512.f"
+MAXWELL_MODEL = Path(__file__).parent / "../maxwell/maxwell_coll_512.x"
 MAXWELL_SCRIPT = Path(__file__).parent / "../maxwell/run_maxwell.sh"
 
 
