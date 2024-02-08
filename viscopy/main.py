@@ -246,7 +246,7 @@ class ModelGenerator:
 
 
 def gen_maxwell_cmd(input_file, output_file, run_file=None):
-    cmd = f"bash {MAXWELL_SCRIPT} {MAXWELL_MODEL} {str(input_file)} {str(output_file)}"
+    cmd = f"bash {str(MAXWELL_SCRIPT.resolve())} {str(MAXWELL_MODEL.resolve())} {str(input_file)} {str(output_file)}"
 
     if run_file is not None:
         with open(run_file, "w") as fp:
