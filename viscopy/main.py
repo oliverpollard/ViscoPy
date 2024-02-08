@@ -12,6 +12,10 @@ LM_UM_BOUNDARY = 5700000
 LITH_VISC = 1e43
 EARTH_RADIUS = 6371000
 
+MAXWELL_SOURCE = Path(__file__).parent / "../maxwell/maxwell_col_512.f"
+MAXWELL_MODEL = Path(__file__).parent / "../maxwell/maxwell_col_512.x"
+MAXWELL_SCRIPT = Path(__file__).parent / "../maxwell/run_maxwell.sh"
+
 
 def plot_model(df, ax=None, xlim=None, type="line"):
     rads = df["rad"].values
@@ -239,3 +243,53 @@ class ModelGenerator:
     def from_model(cls, model_file):
         model_df = load_model(model_file)
         return cls(model_df=model_df)
+
+
+def gen_maxwell_cmd(input_file, output_file, run_file=None):
+    cmd = f"bash {MAXWELL_SCRIPT} {MAXWELL_MODEL} {str(input_file)} {str(output_file)}"
+
+    if run_file is not None:
+        with open(run_file, "w") as fp:
+            fp.write(f"{cmd}\n")
+    else:
+        return cmd
+
+
+def output_earth_model(visc_lm, visc_um, lith_thickness, output_file):
+    mg = ModelGenerator()
+    visc_model = generate_visc_model(
+        visc_lm=visc_lm,
+        visc_um=visc_um,
+        lith_thickness=lith_thickness,
+    )
+    model = mg.generate(visc_model=visc_model)
+    save_model(model, save=output_file)
+
+
+def output_earth_models(sample_df, output_dir):
+    output_dir = Path(output_dir)
+    for idx in range(len(sample_df)):
+        output_earth_model(
+            visc_lm=sample_df.iloc[idx]["visc_lm"],
+            visc_um=sample_df.iloc[idx]["visc_um"],
+            lith_thickness=sample_df.iloc[idx]["lith_thickness"],
+            output_file=output_dir / f"{idx}.emtxt",
+        )
+
+
+def gen_maxwell_cmds(input_files, run_file=None):
+    cmds = []
+    for file in input_files:
+        input_file = Path(file).resolve()
+        output_file = input_file.with_suffix(".em")
+        cmd = gen_maxwell_cmd(
+            input_file=input_file, output_file=output_file, run_file=None
+        )
+        cmds.append(cmd)
+
+    if run_file is not None:
+        with open(run_file, "w") as fp:
+            for cmd in cmds:
+                fp.write(f"{cmd}\n")
+    else:
+        return cmds
